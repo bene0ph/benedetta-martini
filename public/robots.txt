@@ -1,3 +1,2 @@
 User-agent: *
 Allow: /
-Sitemap: https://www.benedetta-martini.com/sitemap-index.xml

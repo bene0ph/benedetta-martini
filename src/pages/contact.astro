@@ -1,0 +1,80 @@
+---
+import Shell from '../layouts/Shell.astro';
+import { SITE } from '../data/site';
+
+// Until the Formspree code is filled in, the form tells the truth about
+// itself rather than silently swallowing a message.
+const live = Boolean(SITE.formspreeId);
+const action = live ? `https://formspree.io/f/${SITE.formspreeId}` : undefined;
+---
+<Shell title="Contact">
+  <form method="POST" action={action} data-form>
+    <div class="field">
+      <label class="label" for="name">Name</label>
+      <input id="name" name="name" type="text" autocomplete="name" required />
+    </div>
+
+    <div class="field">
+      <label class="label" for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" required />
+    </div>
+
+    <div class="field">
+      <label class="label" for="message">Message</label>
+      <textarea id="message" name="message" rows="4" required></textarea>
+    </div>
+
+    <!-- a honeypot: real people never fill this in, most spam robots do -->
+    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off"
+           style="position:absolute;left:-9999px" aria-hidden="true" />
+
+    <button type="submit" disabled={!live}>Send</button>
+
+    {
+      !live && (
+        <p class="form-note">
+          The form isn’t connected yet — add your Formspree code to
+          <code> src/data/site.ts </code> and it will start delivering to your inbox.
+        </p>
+      )
+    }
+    <p class="form-note" data-sent hidden>Thank you — your message is on its way.</p>
+  </form>
+
+  <div class="small">
+    <a href={`mailto:${SITE.email}`}>{SITE.email}</a> &nbsp;·&nbsp;
+    <a href={SITE.instagramUrl} target="_blank" rel="noopener">@{SITE.instagram}</a><br />
+    {SITE.city}
+  </div>
+</Shell>
+
+<script>
+  // Send without leaving the page, so nobody is bounced to a thank-you screen
+  // that doesn't look like the site.
+  const form = document.querySelector<HTMLFormElement>('[data-form]');
+  const sent = document.querySelector<HTMLElement>('[data-sent]');
+  if (form && sent && form.action) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const button = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+      button.disabled = true;
+      button.textContent = 'Sending';
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        sent.hidden = false;
+        button.textContent = 'Sent';
+      } catch {
+        button.disabled = false;
+        button.textContent = 'Send';
+        sent.textContent = 'That didn’t send. Please email me directly instead.';
+        sent.hidden = false;
+      }
+    });
+  }
+</script>

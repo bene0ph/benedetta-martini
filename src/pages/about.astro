@@ -1,0 +1,12 @@
+---
+import Shell from '../layouts/Shell.astro';
+import { SITE } from '../data/site';
+---
+<Shell title="About">
+  <p class="copy">{SITE.bio}</p>
+
+  <h2 class="label label--ink" style="margin-top:52px">Selected clients</h2>
+  <ul class="clients" style="margin-top:0">
+    {SITE.clients.map((c) => <li>{c}</li>)}
+  </ul>
+</Shell>

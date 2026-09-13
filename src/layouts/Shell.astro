@@ -1,0 +1,68 @@
+---
+/**
+ * Shell — the sidebar and the sheet every page sits on.
+ */
+import '@fontsource/schibsted-grotesk/latin-700.css';
+import '@fontsource/archivo/latin-400.css';
+import '../styles/global.css';
+import { SITE, NAV } from '../data/site';
+
+interface Props { title?: string; description?: string; }
+
+const {
+  title = SITE.name,
+  description = `${SITE.name} — photographer based in ${SITE.city.split(',')[0]}.`,
+} = Astro.props;
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const pageTitle = title === SITE.name ? SITE.name : `${title} — ${SITE.name}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#E8E5DF" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="canonical" href={new URL(path, Astro.site)} />
+  </head>
+
+  <body>
+    <aside class="side">
+      <a class="wordmark" href="/">Benedetta<br />Martini</a>
+
+      <nav class="menu" aria-label="Sections">
+        {
+          NAV.map((item) => (
+            <a href={item.href} aria-current={path === item.href.replace(/\/$/, '') || (item.href === '/' && path === '/') ? 'page' : undefined}>
+              {item.label}
+            </a>
+          ))
+        }
+        <a
+          class="ig"
+          href={SITE.instagramUrl}
+          target="_blank"
+          rel="me noopener"
+          aria-label="Instagram"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+            <rect x="2.6" y="2.6" width="18.8" height="18.8" rx="5.2" />
+            <circle cx="12" cy="12" r="4.4" />
+            <circle cx="17.6" cy="6.4" r="1.15" fill="currentColor" stroke="none" />
+          </svg>
+        </a>
+      </nav>
+    </aside>
+
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>

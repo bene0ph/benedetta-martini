@@ -1,541 +1,292 @@
 /* ===========================================================================
-   PAPER — the design system.
-   A folio printed on warm cream stock: Bodoni for the voice, Garamond for the
-   words, a mono for the marginalia. Nothing is pure white and nothing is pure
-   black, because paper and ink are neither.
+   The whole design system. Warm grey ground, one bold grotesque for the name,
+   one plain grotesque for everything else, and nothing louder than 22px.
    =========================================================================== */
 
 :root {
-  /* --- the stock --------------------------------------------------------- */
-  --paper:        #F2ECE1;   /* warm cream, uncoated */
-  --paper-deep:   #E9E1D3;   /* the endpapers — info page, footer */
-  --paper-edge:   #DBD1BF;   /* rules, hairlines */
-
-  /* --- the ink ----------------------------------------------------------- */
-  --ink:          #211C16;   /* warm near-black. never #000 */
-  --ink-soft:     #6E6459;   /* captions, secondary */
-  --ink-faint:    #A2988A;   /* folio numbers, leaders */
-  --accent:       #7A3B2E;   /* burnt terracotta — links, the reading rule */
-
-  /* --- the voice --------------------------------------------------------- */
-  --display: 'Bodoni Moda', 'Didot', 'Bodoni MT', Georgia, serif;
-  --text:    'EB Garamond', Georgia, 'Times New Roman', serif;
-  --margin:  'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-
-  /* --- the measure ------------------------------------------------------- */
-  --gutter:  clamp(1.25rem, 4.5vw, 4.5rem);   /* the page margin */
-  --page:    82rem;                            /* the trim width */
-  --baseline: clamp(3rem, 7vw, 6rem);          /* one unit of air */
-  --rule:    1px solid var(--paper-edge);
-
-  /* --- motion ------------------------------------------------------------ */
-  --settle: 900ms cubic-bezier(0.16, 0.84, 0.31, 1);
+  --paper:    #E8E5DF;   /* warm pale grey */
+  --ink:      #26241F;   /* warm near-black */
+  --ink-soft: #7A736A;   /* inactive menu items, labels */
+  --hair:     #C9C3B7;   /* rules and input underlines */
+  --sidebar:  286px;
+  --edge:     34px;
+  --top:      38px;
 }
 
-/* --------------------------------------------------------------------------
-   Reset, lightly
-   -------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--text);
-  font-size: clamp(1.0625rem, 0.4vw + 0.95rem, 1.1875rem);
-  line-height: 1.62;
-  font-feature-settings: 'kern' 1, 'liga' 1, 'onum' 1;  /* old-style figures */
+  font-family: Archivo, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+
+  /* sidebar stays put, the photographs scroll beside it */
+  display: grid;
+  grid-template-columns: var(--sidebar) 1fr;
+  height: 100vh;
+  overflow: hidden;
 }
-
-::selection { background: rgba(122, 59, 46, 0.16); color: var(--ink); }
-
-img { display: block; max-width: 100%; height: auto; }
 
 a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+::selection { background: rgba(38,36,31,0.12); }
 
 /* --------------------------------------------------------------------------
-   The grain. An SVG turbulence laid over everything at 3%, so the cream reads
-   as stock rather than as a hex value. No network request, no image file.
+   SIDEBAR
    -------------------------------------------------------------------------- */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  pointer-events: none;
-  opacity: 0.038;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+.side {
+  padding: var(--top) var(--edge);
+  display: flex;
+  flex-direction: column;
 }
 
-/* --------------------------------------------------------------------------
-   MARGINALIA — the small letterspaced caps used for every piece of apparatus
-   on the site: the running head, captions, credits, nav.
-   -------------------------------------------------------------------------- */
-.marg {
-  font-family: var(--margin);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.17em;
+.wordmark {
+  font-family: 'Schibsted Grotesk', Archivo, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
-  line-height: 1.5;
-  color: var(--ink-soft);
-  font-feature-settings: 'kern' 1;
+  color: var(--ink);
 }
-.marg--ink   { color: var(--ink); }
-.marg--faint { color: var(--ink-faint); }
+
+.menu {
+  margin-top: 52px;
+  font-size: 12px;
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+  line-height: 2.5;
+}
+.menu a { display: block; color: var(--ink-soft); transition: color 220ms ease; }
+.menu a:hover,
+.menu a[aria-current='page'] { color: var(--ink); }
+
+.ig {
+  margin-top: 34px;
+  width: 15px; height: 15px;
+  display: block;
+  color: var(--ink);
+}
 
 /* --------------------------------------------------------------------------
-   THE RUNNING HEAD
-   Fixed at the top of every page, the way a running head sits at the top of
-   every leaf of a book: who, what, and which plate you are looking at. The
-   plate number counts up as you scroll. Under it, a hairline that fills in
-   terracotta as you read — a printed rule that knows how far through you are.
+   MAIN
    -------------------------------------------------------------------------- */
-.head {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 80;
-  background: color-mix(in srgb, var(--paper) 86%, transparent);
-  backdrop-filter: saturate(140%) blur(14px);
-  -webkit-backdrop-filter: saturate(140%) blur(14px);
+main {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--top) var(--edge) var(--edge) 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--hair) transparent;
 }
+main::-webkit-scrollbar { width: 7px; }
+main::-webkit-scrollbar-thumb { background: var(--hair); }
 
-.head__row {
-  max-width: var(--page);
-  margin: 0 auto;
-  padding: 1.05rem var(--gutter) 0.95rem;
+/* --------------------------------------------------------------------------
+   THE GRID — every frame the same shape, four across
+   -------------------------------------------------------------------------- */
+.grid {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: baseline;
-  gap: 1rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
-
-.head__name    { justify-self: start; }
-.head__section { justify-self: center; text-align: center; transition: opacity 420ms ease; }
-.head__folio   { justify-self: end; font-variant-numeric: tabular-nums; }
-
-.head__name a:hover, .head__nav a:hover { color: var(--accent); }
-
-/* the reading rule */
-.head__rule { height: 1px; background: var(--paper-edge); position: relative; }
-.head__rule::after {
-  content: '';
-  position: absolute; inset: 0 auto 0 0;
-  width: var(--read, 0%);
-  background: var(--accent);
-  transition: width 140ms linear;
+.grid button {
+  padding: 0; margin: 0; border: 0; background: none;
+  cursor: zoom-in; display: block; width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  /* the shape lives on the button, so the <img> can simply fill it. Putting
+     aspect-ratio on the image itself loses to its own height attribute. */
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
 }
-
-/* on small screens the centre column is dropped — three things do not fit */
-@media (max-width: 46rem) {
-  .head__section { display: none; }
-  .head__row { grid-template-columns: 1fr auto; }
+.grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 320ms ease;
 }
+.grid button:hover img { opacity: 0.86; }
+
+@media (max-width: 1180px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 
 /* --------------------------------------------------------------------------
-   NAV — lives at the foot of the opening, not the top. The photographs get
-   the top of the page; the apparatus waits its turn.
+   PAGES OF WORDS
    -------------------------------------------------------------------------- */
-.nav { display: flex; gap: 1.75rem; flex-wrap: wrap; }
-.nav a { position: relative; padding-bottom: 2px; }
-.nav a::after {
-  content: '';
-  position: absolute; left: 0; right: 0; bottom: 0;
-  height: 1px; background: currentColor;
-  transform: scaleX(0); transform-origin: left;
-  transition: transform var(--settle);
-}
-.nav a:hover { color: var(--accent); }
-.nav a:hover::after, .nav a[aria-current='page']::after { transform: scaleX(1); }
-
-/* --------------------------------------------------------------------------
-   THE OPENING — the title page. Name in Bodoni, a single sentence, and then
-   a great deal of cream before the first photograph.
-   -------------------------------------------------------------------------- */
-.opening {
-  max-width: var(--page);
-  margin: 0 auto;
-  padding: clamp(7rem, 22vh, 13rem) var(--gutter) 0;
-}
-
-.opening__name {
-  font-family: var(--display);
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-size: clamp(2.9rem, 10.5vw, 8.5rem);
-  line-height: 0.92;
-  letter-spacing: -0.018em;
+.copy {
+  font-size: 15px;
+  line-height: 1.72;
+  max-width: 42ch;
   margin: 0;
 }
-.opening__name em {
-  font-style: italic;
+
+.label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 10px;
   font-weight: 400;
-  display: block;
-  /* the second line hangs slightly, the way a display line is optically set */
-  margin-left: 0.06em;
+}
+.label--ink { color: var(--ink); }
+
+.clients {
+  margin-top: 52px;
+  font-size: 11px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  line-height: 2.05;
+  list-style: none;
+  padding: 0;
 }
 
-.opening__statement {
-  font-family: var(--text);
-  font-size: clamp(1.25rem, 1.5vw + 0.9rem, 1.75rem);
-  line-height: 1.45;
-  max-width: 34ch;
-  margin: clamp(2.5rem, 6vw, 4.5rem) 0 0;
-  text-wrap: pretty;
-}
+/* --------------------------------------------------------------------------
+   THE CONTACT FORM
+   Inputs are rules, not boxes — a bordered field would be the heaviest object
+   on a page whose loudest element is 22px of type.
+   -------------------------------------------------------------------------- */
+form { max-width: 460px; }
+.field { margin-bottom: 26px; }
+.field label { display: block; }
 
-.opening__foot {
+input, textarea {
+  width: 100%;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--hair);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+  padding: 5px 0 9px;
+  outline: none;
+  resize: none;
+  border-radius: 0;
+}
+input:focus, textarea:focus { border-bottom-color: var(--ink); }
+
+button[type='submit'] {
+  margin-top: 8px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  padding: 0 0 5px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+button[type='submit']:disabled { color: var(--ink-soft); border-bottom-color: var(--hair); cursor: default; }
+
+.form-note {
+  margin: 18px 0 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+  max-width: 46ch;
+}
+.form-note[hidden] { display: none; }
+
+.small {
+  margin-top: 54px;
+  font-size: 11px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  line-height: 2;
+}
+.small a { border-bottom: 1px solid var(--hair); }
+.small a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* --------------------------------------------------------------------------
+   THE SINGLE-IMAGE VIEW
+   Opens over the grid. The sidebar stays visible underneath it, so your name
+   never leaves the screen.
+   -------------------------------------------------------------------------- */
+.viewer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  left: var(--sidebar);
+  z-index: 50;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--top) var(--edge);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 260ms ease, visibility 260ms;
+}
+.viewer[data-open] { opacity: 1; visibility: visible; }
+
+.viewer__inner { display: flex; flex-direction: column; align-items: center; gap: 14px; max-width: 100%; }
+.viewer__img { max-height: 78vh; max-width: 100%; width: auto; object-fit: contain; }
+
+.viewer__bar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 2rem;
-  flex-wrap: wrap;
-  margin-top: clamp(3rem, 9vw, 6rem);
-  padding-bottom: 1.1rem;
-  border-bottom: var(--rule);
-}
-
-/* --------------------------------------------------------------------------
-   THE SEQUENCE — the folio itself.
-   Not a grid. Each plate declares its own measure and its own alignment, and
-   the vertical air between them is set by hand. That variation is the whole
-   point: it is what lets eighteen photographs feel like an edit instead of
-   like a thin gallery.
-   -------------------------------------------------------------------------- */
-.sequence {
-  max-width: var(--page);
-  margin: 0 auto;
-  padding: 0 var(--gutter);
-
-  /* Twelve columns, the way a magazine page is ruled. Plates declare the
-     columns they occupy; any two whose columns do not collide fall into the
-     same row on their own. That is how the offset pairs are made — no
-     wrappers, no rows in the markup, just two numbers per photograph. */
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  column-gap: clamp(1rem, 2.4vw, 2.5rem);
-  row-gap: 0;
-  align-items: start;
-}
-
-.plate {
-  margin: 0;
-  /* the index links here; the running head must not sit on top of the plate */
-  scroll-margin-top: 6rem;
-  grid-column: var(--col) / span var(--span);
-  margin-top: calc(var(--air, 2) * var(--baseline));
-
-  /* No photograph is allowed to be so tall that you cannot take it in. The
-     cap is expressed in the image's own aspect ratio, so a wide frame keeps
-     its width and only the very tall portraits are reined in. */
-  max-width: calc(var(--tall, 116vh) * var(--ar, 1));
-}
-.plate[data-justify='centre'] { justify-self: center; }
-.plate[data-justify='end']    { justify-self: end; }
-
-.plate__frame {
-  position: relative;
-  overflow: hidden;
-  background: var(--paper-deep);
-}
-
-.plate__img {
-  width: 100%;
-  height: auto;
-  /* a whisper of warmth over the top, so a set shot in different light still
-     reads as one edit. Kept subtle enough to be deniable. */
-  filter: sepia(0.055) saturate(0.97) contrast(1.015);
-  transition: filter var(--settle);
-}
-.plate:hover .plate__img { filter: sepia(0.015) saturate(1) contrast(1.02); }
-
-/* --- the caption. Set like a credit line, not like alt text. --- */
-.plate__caption {
-  display: flex;
-  gap: 0.9rem;
   align-items: baseline;
-  margin-top: 0.85rem;
-  padding-top: 0.7rem;
-  border-top: var(--rule);
+  width: 100%;
+  gap: 2rem;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
-.plate__no    { flex: none; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
-.plate__what  { color: var(--ink); }
-.plate__where { display: block; color: var(--ink-soft); text-transform: none; letter-spacing: 0.1em; }
-.plate__when  { margin-left: auto; flex: none; color: var(--ink-faint); white-space: nowrap; }
-.plate:hover .plate__where { color: var(--accent); }
-.plate__where, .plate__what { transition: color var(--settle); }
-
-/* Narrow plates cannot carry a three-part credit line; drop the date. */
-.plate[data-span='3'] .plate__when,
-.plate[data-span='4'] .plate__when { display: none; }
-
-@media (max-width: 46rem) {
-  /* On a phone the columns go, but the *pacing* stays — the rhythm of air is
-     the design, and it is the part that has to survive the breakpoint. */
-  .sequence { display: block; }
-  .plate { max-width: 100%; margin-top: calc(max(var(--air, 2), 1.5) * var(--baseline) * 0.6); }
-  .plate[data-span='3'] { max-width: 62%; }
-  .plate[data-span='4'] { max-width: 74%; }
-  .plate[data-span='5'], .plate[data-span='6'] { max-width: 88%; }
-  /* alternate which edge the small plates hang off, so the column breathes */
-  .plate:nth-of-type(even) { margin-left: auto; }
-  .plate__when { display: none; }
-}
-
-/* --- the settle. Plates rise and fade; captions follow a beat later. --- */
-.rise { opacity: 0; transform: translateY(14px); }
-.rise.is-in { opacity: 1; transform: none; transition: opacity var(--settle), transform var(--settle); }
-.rise--late.is-in { transition-delay: 140ms; }
+.viewer__bar button { background: none; border: 0; padding: 0; cursor: pointer;
+  font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--ink-soft); }
+.viewer__bar button:hover { color: var(--ink); }
+.viewer__count { font-variant-numeric: tabular-nums; }
+.viewer__controls { display: flex; gap: 18px; }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .rise, .rise.is-in { opacity: 1; transform: none; transition: none; }
-  .head__rule::after { transition: none; }
+  *, *::before, *::after { transition: none !important; }
 }
 
 /* --------------------------------------------------------------------------
-   THE INDEX OF PLATES — the back matter. A printed list of illustrations,
-   leader dots and all. This is the detail that makes a small body of work
-   read as a finished, bound thing rather than as everything that existed.
+   PHONES AND TABLETS
+   The sidebar becomes a header, the page scrolls normally, two columns.
    -------------------------------------------------------------------------- */
-.back {
-  background: var(--paper-deep);
-  scroll-margin-top: 6rem;
-  margin-top: calc(var(--baseline) * 3);
-  padding: calc(var(--baseline) * 1.4) 0 calc(var(--baseline) * 1.1);
-  border-top: var(--rule);
-}
-.back__inner { max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter); }
+@media (max-width: 820px) {
+  :root { --edge: 18px; --top: 22px; }
 
-.back__title {
-  font-family: var(--display);
-  font-weight: 400;
-  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
-  margin: 0 0 2.25rem;
-  letter-spacing: -0.01em;
-}
+  body { display: block; height: auto; overflow: visible; }
 
-.index { columns: 2; column-gap: clamp(2rem, 6vw, 5rem); margin: 0; padding: 0; list-style: none; }
-@media (max-width: 52rem) { .index { columns: 1; } }
-
-.index li { break-inside: avoid; margin-bottom: 0.55rem; }
-
-.index a {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  padding: 0.15rem 0;
-}
-.index a:hover .index__what { color: var(--accent); }
-.index__no   { flex: none; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
-.index__what { flex: none; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color var(--settle); }
-.index__lead { flex: 1 1 auto; border-bottom: 1px dotted var(--ink-faint); transform: translateY(-0.22em); opacity: 0.6; }
-.index__when { flex: none; color: var(--ink-soft); }
-
-/* --------------------------------------------------------------------------
-   THE COLOPHON — contact, and the note about how the thing was set.
-   -------------------------------------------------------------------------- */
-.colophon {
-  max-width: var(--page);
-  margin: 0 auto;
-  padding: calc(var(--baseline) * 1.2) var(--gutter) calc(var(--baseline) * 0.8);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 2.5rem clamp(1.5rem, 4vw, 3.5rem);
-  align-items: start;
-}
-/* a grid item's default min-width is its content, which is how a long email
-   address climbs out of its column and lands on its neighbour */
-.colophon__block { min-width: 0; }
-.colophon__block h3 { margin: 0 0 0.8rem; }
-.colophon__block a:hover { color: var(--accent); }
-.colophon__big {
-  font-family: var(--display);
-  font-size: clamp(1.15rem, 1.9vw, 1.6rem);
-  font-weight: 400;
-  letter-spacing: -0.005em;
-  line-height: 1.25;
-  text-transform: none;
-  overflow-wrap: anywhere;
-  display: block;
-}
-.colophon__note { grid-column: 1 / -1; border-top: var(--rule); padding-top: 1.1rem; display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
-
-/* --------------------------------------------------------------------------
-   PROSE — the info page, the series standfirsts.
-   -------------------------------------------------------------------------- */
-.prose { max-width: 38rem; }
-.prose p { margin: 0 0 1.35em; text-wrap: pretty; }
-.prose p:first-of-type::first-letter {
-  /* a raised initial, not a drop cap — quieter, and it never breaks the grid */
-  font-family: var(--display);
-  font-size: 1.9em;
-  line-height: 0.8;
-  padding-right: 0.06em;
-  color: var(--accent);
-}
-.prose a { border-bottom: 1px solid var(--paper-edge); }
-.prose a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-
-.lede {
-  font-family: var(--display);
-  font-weight: 400;
-  font-size: clamp(1.5rem, 3.6vw, 2.5rem);
-  line-height: 1.22;
-  letter-spacing: -0.012em;
-  max-width: 22ch;
-  margin: 0 0 2.5rem;
-}
-
-/* a definition list set as an editorial credits block */
-.credits { margin: 0; }
-.credits > div {
-  display: grid;
-  grid-template-columns: 9rem 1fr;
-  gap: 1.25rem;
-  padding: 0.8rem 0;
-  border-top: var(--rule);
-}
-.credits dt { margin: 0; }
-.credits dd { margin: 0; font-family: var(--text); font-size: 1rem; }
-@media (max-width: 40rem) { .credits > div { grid-template-columns: 1fr; gap: 0.25rem; } }
-
-/* --------------------------------------------------------------------------
-   SERIES — the contents page and the series openers.
-   -------------------------------------------------------------------------- */
-.opener {
-  max-width: var(--page);
-  margin: 0 auto;
-  padding: clamp(7rem, 20vh, 11rem) var(--gutter) 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-}
-.opener__title {
-  font-family: var(--display);
-  font-weight: 400;
-  font-size: clamp(2.4rem, 8vw, 5.5rem);
-  line-height: 0.98;
-  letter-spacing: -0.018em;
-  margin: 0;
-}
-.opener__meta { display: flex; gap: 1.5rem; flex-wrap: wrap; padding-bottom: 1rem; border-bottom: var(--rule); }
-
-.contents { max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter); }
-.contents__row {
-  display: grid;
-  grid-template-columns: 3.5rem 1fr auto;
-  gap: 1.5rem;
-  align-items: baseline;
-  padding: clamp(1.4rem, 3vw, 2.2rem) 0;
-  border-top: var(--rule);
-  transition: padding-left var(--settle);
-}
-.contents__row:last-child { border-bottom: var(--rule); }
-/* the opener's rule is already the first row's rule; two hairlines with a gap
-   between them is the sort of thing that reads as an accident */
-.contents__row:first-child { border-top: 0; }
-.contents__row:hover { padding-left: 0.6rem; }
-.contents__row:hover .contents__title { color: var(--accent); }
-.contents__title {
-  font-family: var(--display);
-  font-weight: 400;
-  font-size: clamp(1.5rem, 4vw, 2.6rem);
-  line-height: 1.05;
-  letter-spacing: -0.012em;
-  transition: color var(--settle);
-}
-.contents__sub { display: block; margin-top: 0.5rem; }
-@media (max-width: 40rem) {
-  .contents__row { grid-template-columns: 2.5rem 1fr; }
-  .contents__row > .contents__count { display: none; }
-}
-
-/* --------------------------------------------------------------------------
-   Utilities
-   -------------------------------------------------------------------------- */
-.stack > * + * { margin-top: var(--stack, 1rem); }
-.visually-hidden {
-  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-}
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-/* the running head's centre column: plate count · which series you are in */
-.head__section { display: flex; gap: 0.55rem; align-items: baseline; }
-.head__section [data-folio] { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.head__section [data-head-section] { transition: opacity 300ms ease; white-space: nowrap; }
-/* the separator only exists once there is something to separate */
-.head__section [data-folio] + [data-head-section]:not(:empty)::before {
-  content: '·';
-  opacity: 0.5;
-  margin-right: 0.55rem;
-}
-.head__folio.nav { gap: 1.4rem; }
-
-/* --------------------------------------------------------------------------
-   SHEET & SPREAD — for pages that are words rather than plates.
-   `.sequence` is a twelve-column photo grid and nothing else should borrow it.
-   -------------------------------------------------------------------------- */
-.sheet {
-  max-width: var(--page);
-  margin: 0 auto;
-  padding: 0 var(--gutter);
-}
-
-.spread {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  column-gap: clamp(1rem, 2.4vw, 2.5rem);
-  row-gap: clamp(2rem, 5vw, 3.5rem);
-  align-items: start;
-}
-.spread__lede { grid-column: 1 / span 5; }
-.spread__body { grid-column: 7 / span 5; }
-.spread__wide { grid-column: 1 / span 7; }
-.spread__side { grid-column: 9 / span 4; }
-
-@media (max-width: 56rem) {
-  .spread__lede, .spread__body, .spread__wide, .spread__side { grid-column: 1 / -1; }
-}
-
-/* a run of client names, set as display type and allowed to wrap like a list
-   rather than like a paragraph */
-.roll {
-  font-family: var(--display);
-  font-weight: 400;
-  font-size: clamp(1.2rem, 2.4vw, 1.9rem);
-  line-height: 1.35;
-  margin: 0;
-}
-.roll span { white-space: nowrap; }
-.roll i { font-style: normal; color: var(--ink-faint); padding: 0 0.45em; }
-
-/* --------------------------------------------------------------------------
-   THE RUNNING HEAD ON A PHONE
-   Declared last on purpose: the `.head__section { display: flex }` rule above
-   is what it has to beat, and both have the same specificity.
-   -------------------------------------------------------------------------- */
-@media (max-width: 46rem) {
-  .head__row {
-    grid-template-columns: 1fr auto;
-    padding-top: 0.85rem;
-    padding-bottom: 0.75rem;
-    gap: 0.75rem;
+  .side {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--paper);
+    padding: var(--top) var(--edge) 18px;
   }
-  .head__section { display: none; }
-  .head__name { white-space: nowrap; }
-  .head__name a { font-size: 0.625rem; letter-spacing: 0.14em; }
-  .head__folio.nav { flex-wrap: nowrap; gap: 1rem; }
-  .head__folio.nav a { font-size: 0.625rem; letter-spacing: 0.12em; }
+  .wordmark { font-size: 17px; }
+
+  .menu {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 10.5px;
+    letter-spacing: 0.09em;
+    line-height: 1;
+  }
+  .ig { margin-top: 0; margin-left: auto; width: 13px; height: 13px; }
+
+  main { overflow: visible; padding: 0 var(--edge) var(--edge); }
+
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 7px; }
+
+  .viewer { left: 0; padding: 16px; }
+  .viewer__img { max-height: 74vh; }
 }
 
-/* Below ~22rem even that is tight: the wordmark gives up its surname, the way
-   a running head abbreviates rather than wraps. */
-@media (max-width: 22rem) {
-  .head__name a { font-size: 0.5625rem; letter-spacing: 0.1em; }
-  .head__folio.nav { gap: 0.75rem; }
+@media (max-width: 380px) {
+  .menu { gap: 13px; font-size: 9.5px; }
 }

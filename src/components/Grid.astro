@@ -1,0 +1,113 @@
+---
+/**
+ * Grid — four columns of photographs, and the viewer that opens when one is
+ * clicked. Without JavaScript every frame is still a link to the full-size
+ * picture, so the page works either way.
+ */
+import { Image, getImage } from 'astro:assets';
+
+interface Props { files: string[] }
+const { files } = Astro.props;
+
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/plates/*.{jpg,jpeg,png,webp,avif}',
+  { eager: true },
+);
+
+const plates = await Promise.all(files.map(async (file) => {
+  const entry = images[`../assets/plates/${file}`];
+  if (!entry) {
+    throw new Error(
+      `\n\n  The photograph "${file}" is listed in src/data/site.ts but there is no\n` +
+      `  file of that name in src/assets/plates. Check the spelling, including\n` +
+      `  the .jpg on the end.\n`,
+    );
+  }
+  // A dedicated size for the single-image view. Without this the viewer would
+  // download the untouched camera file — about 1.5 MB each, which is a long
+  // wait on a phone for something that is only ever drawn 800px wide.
+  const large = await getImage({
+    src: entry.default,
+    width: 1200,
+    format: 'webp',
+    quality: 78,
+  });
+
+  return { file, img: entry.default, large: large.src };
+}));
+---
+
+<div class="grid" data-grid>
+  {
+    plates.map(({ img, large, file }, i) => (
+      <button type="button" data-open={i} aria-label={`Open photograph ${i + 1} of ${plates.length}`}>
+        <Image
+          src={img}
+          alt=""
+          width={760}
+          widths={[380, 760]}
+          sizes="(max-width: 820px) 50vw, (max-width: 1180px) 33vw, 25vw"
+          quality={80}
+          loading={i < 8 ? 'eager' : 'lazy'}
+          data-full={large}
+          data-file={file}
+        />
+      </button>
+    ))
+  }
+</div>
+
+<div class="viewer" data-viewer role="dialog" aria-modal="true" aria-label="Photograph">
+  <div class="viewer__inner">
+    <img class="viewer__img" data-viewer-img alt="" />
+    <div class="viewer__bar">
+      <span class="viewer__count"><span data-viewer-n>1</span> / {plates.length}</span>
+      <span class="viewer__controls">
+        <button type="button" data-prev>Prev</button>
+        <button type="button" data-next>Next</button>
+        <button type="button" data-close>Close</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const grid = document.querySelector<HTMLElement>('[data-grid]');
+  const viewer = document.querySelector<HTMLElement>('[data-viewer]');
+  if (grid && viewer) {
+    const shots = Array.from(grid.querySelectorAll<HTMLImageElement>('img'));
+    const big = viewer.querySelector<HTMLImageElement>('[data-viewer-img]')!;
+    const num = viewer.querySelector<HTMLElement>('[data-viewer-n]')!;
+    let at = 0;
+
+    const show = (i: number) => {
+      at = (i + shots.length) % shots.length;
+      big.src = shots[at].dataset.full || shots[at].currentSrc || shots[at].src;
+      num.textContent = String(at + 1);
+    };
+    const open = (i: number) => {
+      show(i);
+      viewer.setAttribute('data-open', '');
+      document.body.style.overflow = 'hidden';
+    };
+    const close = () => {
+      viewer.removeAttribute('data-open');
+      document.body.style.overflow = '';
+    };
+
+    grid.querySelectorAll<HTMLButtonElement>('[data-open]').forEach((b) =>
+      b.addEventListener('click', () => open(Number(b.dataset.open))),
+    );
+    viewer.querySelector('[data-next]')!.addEventListener('click', () => show(at + 1));
+    viewer.querySelector('[data-prev]')!.addEventListener('click', () => show(at - 1));
+    viewer.querySelector('[data-close]')!.addEventListener('click', close);
+    viewer.addEventListener('click', (e) => { if (e.target === viewer) close(); });
+
+    addEventListener('keydown', (e) => {
+      if (!viewer.hasAttribute('data-open')) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowRight') show(at + 1);
+      if (e.key === 'ArrowLeft') show(at - 1);
+    });
+  }
+</script>
