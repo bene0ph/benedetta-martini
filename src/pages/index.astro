@@ -1,0 +1,45 @@
+---
+/**
+ * The Folio — the front page.
+ *
+ * Eighteen photographs, paced by hand. The argument the page is making is
+ * that a small, well-set edit reads as more authoritative than a large grid,
+ * so nothing here is arranged on a uniform column: every plate declares its
+ * own width, its own side of the page, and its own amount of surrounding air.
+ */
+import Paper from '../layouts/Paper.astro';
+import Plate from '../components/Plate.astro';
+import IndexOfPlates from '../components/IndexOfPlates.astro';
+import Colophon from '../components/Colophon.astro';
+import { PLATES, STUDIO } from '../data/work';
+---
+
+<Paper
+  title={`${STUDIO.name} — ${STUDIO.discipline} Photography`}
+  total={PLATES.length}
+>
+  <section class="opening">
+    <h1 class="opening__name">
+      Benedetta
+      <em>Martini</em>
+    </h1>
+
+    <p class="opening__statement">{STUDIO.statement}</p>
+
+    <div class="opening__foot">
+      <span class="marg marg--faint">
+        {STUDIO.discipline} &nbsp;·&nbsp; {STUDIO.city}
+      </span>
+      <span class="marg marg--faint">
+        Folio — {String(PLATES.length).padStart(2, '0')} plates, 2022&ndash;2024
+      </span>
+    </div>
+  </section>
+
+  <div class="sequence">
+    {PLATES.map((plate, i) => <Plate plate={plate} n={i + 1} eager={i === 0} />)}
+  </div>
+
+  <IndexOfPlates plates={PLATES} />
+  <Colophon />
+</Paper>

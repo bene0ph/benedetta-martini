@@ -1,0 +1,162 @@
+---
+/**
+ * Paper — the sheet every page is printed on.
+ *
+ * Owns the running head, the grain, the fonts and the one small piece of
+ * JavaScript on the site: the observer that counts plates and drives the
+ * reading rule.
+ */
+import '@fontsource/bodoni-moda/latin-400.css';
+import '@fontsource/bodoni-moda/latin-400-italic.css';
+import '@fontsource/eb-garamond/latin-400.css';
+import '@fontsource/eb-garamond/latin-400-italic.css';
+import '@fontsource/ibm-plex-mono/latin-400.css';
+import '../styles/global.css';
+import { STUDIO } from '../data/work';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** what the running head says in the middle before the first plate */
+  section?: string;
+  /** total plates on this page, for the folio count */
+  total?: number;
+}
+
+const {
+  title,
+  description = `${STUDIO.name} — ${STUDIO.discipline.toLowerCase()} photography, ${STUDIO.city}.`,
+  section = '',
+  total = 0,
+} = Astro.props;
+
+const path = Astro.url.pathname;
+const isHere = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#F2ECE1" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="canonical" href={new URL(path, Astro.site)} />
+  </head>
+
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="head" data-head>
+      <div class="head__row">
+        <div class="head__name marg marg--ink">
+          <a href="/">{STUDIO.name}</a>
+        </div>
+
+        <div class="head__section marg marg--faint">
+          {
+            total > 0 && (
+              <span data-folio>
+                Plate <span data-folio-n>01</span> / {String(total).padStart(2, '0')}
+              </span>
+            )
+          }
+          <span data-head-section>{section}</span>
+        </div>
+
+        <nav class="head__folio nav marg" aria-label="Sections">
+          <a href="/" aria-current={isHere('/') ? 'page' : undefined}>Folio</a>
+          <a href="/work" aria-current={isHere('/work') ? 'page' : undefined}>Series</a>
+          <a href="/info" aria-current={isHere('/info') ? 'page' : undefined}>Info</a>
+        </nav>
+      </div>
+      <div class="head__rule" data-rule></div>
+    </header>
+
+    <main id="top">
+      <slot />
+    </main>
+
+    <script>
+      // ---------------------------------------------------------------------
+      // Everything below is progressive enhancement. With JS off you get the
+      // whole site, every photograph visible, just without the counting.
+      // ---------------------------------------------------------------------
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* 1. The settle — plates rise into place once, then are left alone. */
+      const risers = document.querySelectorAll<HTMLElement>('.rise');
+      if (reduced || !('IntersectionObserver' in window)) {
+        risers.forEach((el) => el.classList.add('is-in'));
+      } else {
+        const settle = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (!e.isIntersecting) continue;
+              e.target.classList.add('is-in');
+              settle.unobserve(e.target);
+            }
+          },
+          { rootMargin: '0px 0px -12% 0px', threshold: 0.08 },
+        );
+        risers.forEach((el) => settle.observe(el));
+      }
+
+      /* 2. The folio number and the running head's centre column.
+            Whichever plate is nearest the top third of the viewport wins. */
+      const folioN = document.querySelector<HTMLElement>('[data-folio-n]');
+      const sectionEl = document.querySelector<HTMLElement>('[data-head-section]');
+      const plates = Array.from(document.querySelectorAll<HTMLElement>('[data-plate]'));
+
+      if (plates.length && (folioN || sectionEl)) {
+        let current = -1;
+        const mark = () => {
+          const line = window.innerHeight * 0.34;
+          let best = -1;
+          for (let i = 0; i < plates.length; i++) {
+            if (plates[i].getBoundingClientRect().top <= line) best = i;
+          }
+          if (best === current) return;
+          current = best;
+
+          const plate = plates[Math.max(best, 0)];
+          if (folioN) {
+            folioN.textContent = String(Math.max(best, 0) + 1).padStart(2, '0');
+          }
+          if (sectionEl) {
+            const next = best < 0 ? '' : plate.dataset.section || '';
+            if (next !== sectionEl.textContent) {
+              sectionEl.style.opacity = '0';
+              window.setTimeout(() => {
+                sectionEl.textContent = next;
+                sectionEl.style.opacity = '1';
+              }, reduced ? 0 : 200);
+            }
+          }
+        };
+        mark();
+        addEventListener('scroll', mark, { passive: true });
+        addEventListener('resize', mark, { passive: true });
+      }
+
+      /* 3. The reading rule — a hairline that fills as you work down the page. */
+      const rule = document.querySelector<HTMLElement>('[data-rule]');
+      if (rule) {
+        const read = () => {
+          const span = document.documentElement.scrollHeight - window.innerHeight;
+          const pct = span > 0 ? (window.scrollY / span) * 100 : 0;
+          rule.style.setProperty('--read', `${Math.min(100, Math.max(0, pct))}%`);
+        };
+        read();
+        addEventListener('scroll', read, { passive: true });
+        addEventListener('resize', read, { passive: true });
+      }
+    </script>
+  </body>
+</html>

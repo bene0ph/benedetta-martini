@@ -1,0 +1,35 @@
+---
+/**
+ * Colophon — contact, and the note on how the thing was set.
+ * A colophon is the paragraph at the end of a book that says who made it and
+ * in what typeface. It is the most human piece of furniture in print, so it
+ * is doing the work here that a "Contact" page usually does badly.
+ */
+import { STUDIO } from '../data/work';
+const year = new Date().getFullYear();
+---
+
+<div class="colophon">
+  <div class="colophon__block">
+    <h3 class="marg marg--faint">Commissions</h3>
+    <a class="colophon__big" href={`mailto:${STUDIO.email}`}>{STUDIO.email}</a>
+  </div>
+
+  <div class="colophon__block">
+    <h3 class="marg marg--faint">Elsewhere</h3>
+    <a class="colophon__big" href={STUDIO.instagramUrl} rel="me noopener" target="_blank">
+      @{STUDIO.instagram}
+    </a>
+  </div>
+
+  <div class="colophon__block">
+    <h3 class="marg marg--faint">Based</h3>
+    <p class="colophon__big" style="margin:0">{STUDIO.city}<br />Available anywhere</p>
+  </div>
+
+  <div class="colophon__note marg marg--faint">
+    <span>© {year} {STUDIO.name}</span>
+    <span>Set in Bodoni Moda, EB Garamond and IBM Plex Mono</span>
+    <span><a href="#top">Return to top</a></span>
+  </div>
+</div>
