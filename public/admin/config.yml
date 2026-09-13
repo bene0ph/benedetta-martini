@@ -8,8 +8,8 @@
 backend:
   name: github
   # ── SET THIS ──────────────────────────────────────────────────────────────
-  # Once the site is on GitHub, replace with  your-username/benedetta-martini
-  repo: OWNER/REPO
+  # Benedetta’s GitHub account and the repository holding this site.
+  repo: bene0ph/benedetta-martini
   branch: main
   # The sign-in service (a free Cloudflare Worker). See GOING-LIVE.md step 4.
   # base_url: https://your-authenticator.workers.dev
