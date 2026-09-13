@@ -7,7 +7,6 @@
 
 backend:
   name: github
-  # ── SET THIS ──────────────────────────────────────────────────────────────
   # Benedetta’s GitHub account and the repository holding this site.
   repo: bene0ph/benedetta-martini
   branch: main
