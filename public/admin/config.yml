@@ -36,7 +36,17 @@ singletons:
         name: photos
         widget: list
         summary: '{{fields.image}}'
-        field: { label: Image, name: image, widget: image }
+        fields:
+          - { label: Image, name: image, widget: image }
+          - label: Description
+            name: alt
+            widget: string
+            required: false
+            hint: >-
+              What is in the picture, in a few plain words — "anchovies and
+              bread at Albert's Wine Bar". Never appears on the page. This is
+              what Google reads, and what a blind visitor's screen reader says.
+              Leave it empty and the photograph is invisible to both.
 
   - name: sketchbook
     label: Sketchbook
@@ -49,7 +59,17 @@ singletons:
         name: photos
         widget: list
         summary: '{{fields.image}}'
-        field: { label: Image, name: image, widget: image }
+        fields:
+          - { label: Image, name: image, widget: image }
+          - label: Description
+            name: alt
+            widget: string
+            required: false
+            hint: >-
+              What is in the picture, in a few plain words — "anchovies and
+              bread at Albert's Wine Bar". Never appears on the page. This is
+              what Google reads, and what a blind visitor's screen reader says.
+              Leave it empty and the photograph is invisible to both.
 
   - name: settings
     label: Words & details

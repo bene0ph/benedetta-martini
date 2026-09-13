@@ -17,14 +17,27 @@ import sketchbook from '../content/sketchbook.json';
 
 const fileName = (path: string) => path.split('/').filter(Boolean).pop() ?? path;
 
+/** One photograph as the rest of the site wants it. */
+export interface Photo {
+  file: string;
+  /** What is in the picture. Read by Google Images and by screen readers;
+      never shown on the page, because the design has no captions. */
+  alt: string;
+}
+
+const toPhoto = (entry: { image: string; alt?: string }): Photo => ({
+  file: fileName(entry.image),
+  alt: entry.alt?.trim() ?? '',
+});
+
 export const SITE = {
   name: 'Benedetta Martini',
   ...settings,
   instagramUrl: `https://instagram.com/${settings.instagram}`,
 };
 
-export const PORTFOLIO = portfolio.photos.map(fileName);
-export const SKETCHBOOK = sketchbook.photos.map(fileName);
+export const PORTFOLIO = portfolio.photos.map(toPhoto);
+export const SKETCHBOOK = sketchbook.photos.map(toPhoto);
 
 export const NAV = [
   { label: 'Portfolio', href: '/' },

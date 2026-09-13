@@ -6,7 +6,9 @@
  */
 import { Image, getImage } from 'astro:assets';
 
-interface Props { files: string[] }
+import type { Photo } from '../data/site';
+
+interface Props { files: Photo[] }
 const { files } = Astro.props;
 
 const images = import.meta.glob<{ default: ImageMetadata }>(
@@ -14,7 +16,7 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true },
 );
 
-const plates = await Promise.all(files.map(async (file) => {
+const plates = await Promise.all(files.map(async ({ file, alt }) => {
   const entry = images[`../assets/plates/${file}`];
   if (!entry) {
     throw new Error(
@@ -33,17 +35,17 @@ const plates = await Promise.all(files.map(async (file) => {
     quality: 78,
   });
 
-  return { file, img: entry.default, large: large.src };
+  return { file, alt, img: entry.default, large: large.src };
 }));
 ---
 
 <div class="grid" data-grid>
   {
-    plates.map(({ img, large, file }, i) => (
+    plates.map(({ img, large, file, alt }, i) => (
       <button type="button" data-open={i} aria-label={`Open photograph ${i + 1} of ${plates.length}`}>
         <Image
           src={img}
-          alt=""
+          alt={alt}
           width={760}
           widths={[380, 760]}
           sizes="(max-width: 820px) 50vw, (max-width: 1180px) 33vw, 25vw"
@@ -51,6 +53,7 @@ const plates = await Promise.all(files.map(async (file) => {
           loading={i < 8 ? 'eager' : 'lazy'}
           data-full={large}
           data-file={file}
+          data-alt={alt}
         />
       </button>
     ))
@@ -83,6 +86,7 @@ const plates = await Promise.all(files.map(async (file) => {
     const show = (i: number) => {
       at = (i + shots.length) % shots.length;
       big.src = shots[at].dataset.full || shots[at].currentSrc || shots[at].src;
+      big.alt = shots[at].dataset.alt || '';
       num.textContent = String(at + 1);
     };
     const open = (i: number) => {
