@@ -1,0 +1,14 @@
+{
+  // Tells Cloudflare that this project is a folder of finished files, not a
+  // program. Without it, their deploy step looks for an application to run and
+  // stops with an error that sounds like the site is broken.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "benedetta-martini",
+  "compatibility_date": "2026-09-13",
+  "assets": {
+    "directory": "./dist",
+    // /about and /about/ both find about/index.html, the way Astro builds it
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
