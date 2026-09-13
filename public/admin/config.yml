@@ -10,8 +10,10 @@ backend:
   # Benedetta’s GitHub account and the repository holding this site.
   repo: bene0ph/benedetta-martini
   branch: main
-  # The sign-in service (a free Cloudflare Worker). See GOING-LIVE.md step 4.
-  # base_url: https://your-authenticator.workers.dev
+  # The sign-in service — a free Cloudflare Worker on Benedetta's account that
+  # holds the GitHub OAuth credentials. Without this line the Sign In button
+  # falls back to a Netlify service that doesn't exist for this site.
+  base_url: https://sveltia-cms-auth.bmartini.workers.dev
 
 # Where uploaded photographs are stored in the project, and the path written
 # into the content files. They match, because the site turns the path back into
