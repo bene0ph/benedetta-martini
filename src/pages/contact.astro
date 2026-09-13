@@ -7,7 +7,7 @@ import { SITE } from '../data/site';
 const live = Boolean(SITE.formspreeId);
 const action = live ? `https://formspree.io/f/${SITE.formspreeId}` : undefined;
 ---
-<Shell title="Contact">
+<Shell>
   <form method="POST" action={action} data-form>
     <div class="field">
       <label class="label" for="name">Name</label>

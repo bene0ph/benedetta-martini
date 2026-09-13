@@ -5,17 +5,38 @@
 import '@fontsource/schibsted-grotesk/latin-700.css';
 import '@fontsource/archivo/latin-400.css';
 import '../styles/global.css';
-import { SITE, NAV } from '../data/site';
+import { SITE, NAV, SEO } from '../data/site';
 
 interface Props { title?: string; description?: string; }
 
-const {
-  title = SITE.name,
-  description = `${SITE.name} — photographer based in ${SITE.city.split(',')[0]}.`,
-} = Astro.props;
-
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const pageTitle = title === SITE.name ? SITE.name : `${title} — ${SITE.name}`;
+const seo = SEO[path] ?? SEO['/'];
+
+const pageTitle = Astro.props.title ?? seo.title;
+const description = Astro.props.description ?? seo.description;
+const shareImage = new URL('/share.jpg', Astro.site);
+
+/**
+ * Tells a search engine who this is in a form it can actually file: a named
+ * person, in a city, who does a particular job. None of it is visible.
+ */
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: SITE.name,
+  image: shareImage.href,
+  url: Astro.site?.href,
+  description: SITE.bio,
+  areaServed: ['Australia', 'Italy'],
+  address: { '@type': 'PostalAddress', addressLocality: 'Melbourne', addressCountry: 'AU' },
+  sameAs: [SITE.instagramUrl],
+  founder: {
+    '@type': 'Person',
+    name: SITE.name,
+    jobTitle: 'Photographer',
+    worksFor: { '@type': 'Organization', name: SITE.name },
+  },
+};
 ---
 
 <!doctype html>
@@ -30,6 +51,12 @@ const pageTitle = title === SITE.name ? SITE.name : `${title} — ${SITE.name}`;
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content={shareImage} />
+    <meta property="og:url" content={new URL(path, Astro.site)} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={shareImage} />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
     <link rel="canonical" href={new URL(path, Astro.site)} />
   </head>
 
@@ -62,6 +89,9 @@ const pageTitle = title === SITE.name ? SITE.name : `${title} — ${SITE.name}`;
     </aside>
 
     <main>
+      <!-- The page's one real heading. Hidden, because the design has no
+           headings — but a page with none tells a search engine nothing. -->
+      <h1 class="sr-only">{seo.h1}</h1>
       <slot />
     </main>
   </body>

@@ -39,6 +39,39 @@ export const SITE = {
 export const PORTFOLIO = portfolio.photos.map(toPhoto);
 export const SKETCHBOOK = sketchbook.photos.map(toPhoto);
 
+/** What each page tells a search engine it is. Distinct per page: four pages
+    sharing one description is four pages Google reads as one. */
+export const SEO: Record<string, { title: string; description: string; h1: string }> = {
+  '/': {
+    title: 'Benedetta Martini — Photographer, Melbourne',
+    description:
+      'Lifestyle, hotel and hospitality photography by Benedetta Martini, based in ' +
+      'Melbourne. Selected work for Condé Nast Traveller UK, Toast and Lancemore Hotels.',
+    h1: 'Benedetta Martini — photography portfolio',
+  },
+  '/sketchbook': {
+    title: 'Sketchbook — Benedetta Martini, Photographer, Melbourne',
+    description:
+      'Personal and travel photographs by Benedetta Martini, a lifestyle photographer ' +
+      'based in Melbourne, working across Australia and Italy.',
+    h1: 'Sketchbook — personal work',
+  },
+  '/about': {
+    title: 'About — Benedetta Martini, Photographer, Melbourne',
+    description:
+      'Benedetta Martini is a photographer based in Melbourne, shooting lifestyle ' +
+      'campaigns. Clients include Condé Nast Traveller UK, Toast and Lancemore Hotels.',
+    h1: 'About Benedetta Martini',
+  },
+  '/contact': {
+    title: 'Contact — Benedetta Martini, Photographer, Melbourne',
+    description:
+      'Commission Benedetta Martini for lifestyle, hotel and hospitality photography. ' +
+      'Based in Melbourne, working across Australia and Italy.',
+    h1: 'Contact Benedetta Martini',
+  },
+};
+
 export const NAV = [
   { label: 'Portfolio', href: '/' },
   { label: 'Sketchbook', href: '/sketchbook' },
