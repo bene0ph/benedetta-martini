@@ -1,95 +1,60 @@
 # benedetta-martini.com
 
-Your website. This folder *is* the site — there's no account to log into and
-no subscription. Everything you'd ever want to change lives in one file.
+A photography portfolio. Astro, no database, no subscription, hosted free.
+Benedetta edits it herself at **/admin** — see `HANDOVER.md` for that side.
+
+This file is for whoever maintains the code.
 
 ---
 
-## The only file you need: `src/data/site.ts`
+## Shape of it
 
-Open it in any text editor. It holds your name, your sentence, your client
-list, your email, and the two lists that decide which photographs go on which
-page. It's full of notes explaining each part. You can't break the site by
-reading it, and anything you do break can be undone.
-
-### To add a photograph
-
-1. Put the file into the folder `src/assets/plates`
-2. Open `src/data/site.ts`
-3. Add the filename to either the `PORTFOLIO` list or the `SKETCHBOOK` list,
-   in quote marks, with a comma on the end:
-
-   ```
-   'my-new-photo.jpg',
-   ```
-
-That's the whole job. The site resizes it, crops it to the same shape as the
-others, and makes the small versions phones need. You never have to think
-about file sizes.
-
-### To change the order
-
-Move the lines up and down. The list order is the page order.
-
-### To remove a photograph
-
-Delete its line from the list. The file stays in the folder — nothing is
-thrown away, and you can put the line back any time.
-
-### To change your words
-
-- The About sentence, the client list, your email: all in `src/data/site.ts`
-- The menu labels: also in `src/data/site.ts`, at the bottom
-
----
-
-## Seeing your changes
-
-```
-npm run dev
-```
-
-Then open **http://localhost:4321** in a browser. Leave it running — every
-time you save the file, the page updates by itself. Press `Ctrl+C` in the
-terminal to stop it.
-
-The first time only, run `npm install` before `npm run dev`.
-
----
-
-## Publishing changes
-
-If the site is connected to Cloudflare Pages (see `GOING-LIVE.md`), publishing
-is: save your changes, then
-
-```
-git add .
-git commit -m "added new photos"
-git push
-```
-
-About a minute later the live site updates. If that means nothing to you yet,
-`GOING-LIVE.md` walks through it, or ask and I'll do it.
-
----
-
-## What's in here, briefly
-
-| Folder | What it is |
+| Path | What it is |
 |---|---|
-| `src/data/site.ts` | **Your file.** Words, lists, email. |
-| `src/assets/plates` | The photographs. |
-| `src/pages` | The four pages. |
-| `src/styles/global.css` | The design — colours, type, spacing. |
-| `src/components`, `src/layouts` | The machinery. You never need to open these. |
-| `dist` | The built site. Made automatically; don't edit. |
+| `src/content/*.json` | **The content.** Written by the admin screen; safe to hand-edit. |
+| `src/assets/plates/` | The photographs. Uploaded by the admin screen. |
+| `src/data/site.ts` | Reads the JSON, turns stored paths back into filenames. |
+| `src/components/Grid.astro` | The four-column grid and the single-image viewer. |
+| `src/layouts/Shell.astro` | Sidebar, wordmark, menu. |
+| `src/styles/global.css` | The entire design. |
+| `public/admin/` | Sveltia CMS: `index.html` + `config.yml`. |
 
----
+Four pages: `/`, `/sketchbook`, `/about`, `/contact`.
 
-## The design, in one paragraph
+## Running it
 
-Warm pale grey (`#E8E5DF`), never white. Two typefaces: Schibsted Grotesk in
-bold for your name, Archivo for everything else, nothing bigger than 22px.
-Four columns of photographs, all cropped to the same 2:3 shape, tight gutters.
-No captions, no colour, no movement. Clicking a photograph opens it large with
-the sidebar still showing.
+```bash
+npm install
+npm run dev      # http://localhost:4321
+npm run build    # → dist/
+```
+
+## Two things worth knowing before you change anything
+
+**Image paths cross a boundary.** The CMS stores `/src/assets/plates/foo.jpg`;
+the Astro image pipeline wants `foo.jpg`. `fileName()` in `src/data/site.ts` is
+the only place that translation happens. If you move `media_folder` in
+`config.yml`, nothing else needs to change.
+
+**The grid's shape lives on the button, not the image.** `aspect-ratio` on an
+`<img>` loses to the `height` attribute Astro emits, which silently un-crops
+the whole grid. `.grid button` carries the 2:3 and the image fills it.
+
+## Images
+
+The grid ships 380/760px WebP. The single-image viewer gets its own 1200px
+WebP via `getImage()` — without that it would hand out the untouched camera
+files at ~1.5 MB each. Built site is ~8.6 MB; first screen ~293 KB.
+
+## The CMS is in beta
+
+Sveltia CMS is pre-1.0. It is actively developed and used in production, but
+if it ever breaks, it is config-compatible with Decap CMS — swap the one
+`<script>` in `public/admin/index.html` for
+`https://unpkg.com/decap-cms@^3/dist/decap-cms.js` and `config.yml` is
+unchanged. That fallback is the reason for choosing it.
+
+## Deploying
+
+Cloudflare Pages, framework preset Astro, build `npm run build`, output `dist`.
+Every push to `main` — including saves from the admin screen — redeploys.

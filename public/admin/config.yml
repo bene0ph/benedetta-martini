@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+#
+# The editor at benedetta-martini.com/admin.
+#
+# Signing in edits the real website. There is no separate database: every save
+# is a recorded change, so anything can be put back the way it was.
+
+backend:
+  name: github
+  # ── SET THIS ──────────────────────────────────────────────────────────────
+  # Once the site is on GitHub, replace with  your-username/benedetta-martini
+  repo: OWNER/REPO
+  branch: main
+  # The sign-in service (a free Cloudflare Worker). See GOING-LIVE.md step 4.
+  # base_url: https://your-authenticator.workers.dev
+
+# Where uploaded photographs are stored in the project, and the path written
+# into the content files. They match, because the site turns the path back into
+# a filename before handing it to the image pipeline.
+media_folder: /src/assets/plates
+public_folder: /src/assets/plates
+
+# One commit per save, straight to the live site.
+publish_mode: simple
+
+singletons:
+  - name: portfolio
+    label: Portfolio
+    icon: photo_library
+    file: src/content/portfolio.json
+    format: json
+    fields:
+      - label: Photographs
+        label_singular: Photograph
+        name: photos
+        widget: list
+        summary: '{{fields.image}}'
+        field: { label: Image, name: image, widget: image }
+
+  - name: sketchbook
+    label: Sketchbook
+    icon: draw
+    file: src/content/sketchbook.json
+    format: json
+    fields:
+      - label: Photographs
+        label_singular: Photograph
+        name: photos
+        widget: list
+        summary: '{{fields.image}}'
+        field: { label: Image, name: image, widget: image }
+
+  - name: settings
+    label: Words & details
+    icon: settings
+    file: src/content/settings.json
+    format: json
+    fields:
+      - label: About sentence
+        name: bio
+        widget: text
+        hint: The single line on the About page.
+
+      - label: Selected clients
+        label_singular: Client
+        name: clients
+        widget: list
+        hint: Shown on the About page, in this order. Drag to reorder.
+
+      - label: Email address
+        name: email
+        widget: string
+        hint: Where the Contact page sends people, and where the form delivers.
+
+      - label: Instagram handle
+        name: instagram
+        widget: string
+        hint: Without the @.
+
+      - label: Based in
+        name: city
+        widget: string
+
+      - label: Contact form code
+        name: formspreeId
+        widget: string
+        required: false
+        hint: >-
+          The code from formspree.io — looks like xdkoqwlr. Until this is
+          filled in, the contact form says so rather than pretending to send.
