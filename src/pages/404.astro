@@ -1,0 +1,24 @@
+---
+/**
+ * Not found.
+ *
+ * wrangler.jsonc sets `not_found_handling: "404-page"`, which makes Cloudflare
+ * serve /404.html for any address that doesn't exist. Astro only builds that
+ * file if this page exists — without it the response is an empty 404 and the
+ * visitor gets the browser's own error screen instead of the site.
+ */
+import Shell from '../layouts/Shell.astro';
+import { SITE } from '../data/site';
+---
+
+<Shell
+  title={`Page not found — ${SITE.name}`}
+  description="That page does not exist."
+>
+  <p class="copy">
+    That page doesn’t exist.
+  </p>
+  <p class="small" style="margin-top:34px">
+    <a href="/">Return to the photographs</a>
+  </p>
+</Shell>
